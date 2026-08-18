@@ -1,5 +1,7 @@
 # G1 Night Drive
 
+**▶ Play: https://k00ka.github.io/g1-night-drive/**
+
 An arcade-styled study guide for the Ontario G1 knowledge test, built from
 *The Official MTO Driver's Handbook* (ISBN 978-1-4868-8628-9), chapters 1 and 2,
 plus the traffic signs, lights and pavement markings the test also covers.
