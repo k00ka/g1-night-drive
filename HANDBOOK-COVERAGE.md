@@ -62,6 +62,23 @@ questions on:
 - where to stop with **no line, no crosswalk and no sidewalk** (2-24)
 - **truck blind spots** and two vehicles **turning left across each other** (2-15/2-17, 2-20)
 
+## Impairment
+
+The handbook mentions drugs about 50 times and gives drowsy driving its own
+section; neither was represented here, which left impairment reading as an
+alcohol-only subject. Added 19 questions and two study decks covering:
+
+- drug impairment as a Criminal Code offence, chargeable with the vehicle stationary
+- what police may demand — field sobriety tests, a drug recognition evaluation,
+  oral fluid, urine or blood — and that refusing is charged like failing
+- prescription and over-the-counter medicines, and the days-long interaction with alcohol
+- roadside spot checks, and blood samples where breath is impractical
+- the 45-day impoundment for driving while suspended for a Criminal Code offence
+- drowsiness: the eight warning signs, the 2–6 a.m. and 2–4 p.m. risk windows,
+  that a tired driver can be as impaired as a drunk one, and that caffeine is
+  never a substitute for sleep
+- what to do when another driver's aggression makes you feel threatened
+
 ## Re-running the audit
 
 `tools/` holds the scripts. The handbook text used for the check comes from

@@ -245,6 +245,20 @@ const CARDS = [
  "Novice: 2 points warning → 6 second warning → 9 points = 60-day suspension.",
  "Full licence: 6 warning → 9 second warning → 15 points = 30-day suspension.",
  "Novice escalating sanctions: 30 days → 90 days → licence cancelled."]},
+{t:"ready", title:"Too tired to drive", lines:[
+ "A very tired driver can be as impaired as a drunk one.",
+ "Warning signs: eyes closing, head tilting, yawning, mind wandering.",
+ "Worse signs: you cannot recall the last few kilometres, or you drift out of your lane.",
+ "Worst hours: 2 a.m. to 6 a.m., and again 2 p.m. to 4 p.m.",
+ "The only fix is sleep. Pull off and park somewhere safe and well lit.",
+ "Caffeine buys you minutes, not hours. It is never a substitute for sleep."]},
+{t:"penalties", title:"Drugs behind the wheel", lines:[
+ "Impaired by a drug is a crime, exactly like alcohol.",
+ "You can be charged even if the vehicle never moves.",
+ "Police can demand a breath sample, field sobriety tests, a drug recognition evaluation, or oral fluid, urine or blood.",
+ "Refusing any of those is charged the same as failing.",
+ "Prescription and over-the-counter pills count: cold, allergy, sedative, diet.",
+ "Drugs plus any alcohol can be dangerous days later. Ask your doctor or pharmacist."]},
 {t:"penalties", title:"Alcohol, drugs, phones", lines:[
  "Novice drivers and everyone 21 and under: ZERO alcohol.",
  "Warn range 0.05–0.08 still costs you your licence on the spot.",

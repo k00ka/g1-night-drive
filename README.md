@@ -15,11 +15,11 @@ external assets. Fonts are embedded as base64 woff2. Progress saves to
 | Piece | Count |
 |---|---|
 | Road signs (hand-drawn SVG) | 114 — every sign in the handbook |
-| Rules-of-the-road questions | 292 |
+| Rules-of-the-road questions | 311 |
 | Distance / number facts | 38 |
 | Right-of-way scenarios | 16 |
 | Shape & colour decoder items | 14 |
-| Study card decks | 41 |
+| Study card decks | 43 |
 
 ## Games
 
