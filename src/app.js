@@ -11,6 +11,18 @@ const BLANK = {v:1, xp:0, plays:0, days:[], best:{}, topic:{}, signcat:{}, sign:
 let S;
 try { S = Object.assign({}, BLANK, JSON.parse(localStorage.getItem(KEY) || "{}")); }
 catch(e){ S = Object.assign({}, BLANK); }
+/* Signs get removed when the handbook is re-checked. Drop any stored progress
+   that points at one, so a retired sign can't wedge the Fix-It list. */
+(function pruneRetired(){
+  const live = {}; SIGNS.forEach(s => live[s.id] = 1);
+  let n = 0;
+  Object.keys(S.miss || {}).forEach(k => {
+    if (k[0] === "s" && !live[k.slice(2)]) { delete S.miss[k]; n++; }
+  });
+  Object.keys(S.sign || {}).forEach(id => { if (!live[id]) { delete S.sign[id]; n++; } });
+  if (n) try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+})();
+
 let saveT = null;
 function save(){ clearTimeout(saveT); saveT = setTimeout(()=>{
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 120); }
@@ -67,6 +79,8 @@ function clearMiss(key, ok){
   save();
 }
 const missCount = () => Object.keys(S.miss).length;
+const signsSeen = () => SIGNS.filter(s => S.sign[s.id] && S.sign[s.id].n > 0).length;
+const signsRight = () => SIGNS.filter(s => S.sign[s.id] && S.sign[s.id].r > 0).length;
 
 /* ── badges ──────────────────────────────────────────────────────────── */
 const BADGES = [
@@ -719,9 +733,13 @@ function signsView(cat, openId){
     tabs.appendChild(b);
   });
   app.appendChild(tabs);
+  const fam = SIGNS.filter(s=>s.cat===cur);
+  const famSeen = fam.filter(s=>S.sign[s.id] && S.sign[s.id].n>0).length;
   const info = h("div",{class:"panel"});
   info.innerHTML = "<h2 style=\"font-size:20px\">"+esc2(SIGN_CATS[cur].label)+"</h2>"+
-    '<p style="color:var(--ink-2);margin-top:4px">'+esc2(SIGN_CATS[cur].blurb)+" &middot; "+esc2(SIGN_CATS[cur].colour)+"</p>";
+    '<p style="color:var(--ink-2);margin-top:4px">'+esc2(SIGN_CATS[cur].blurb)+" &middot; "+esc2(SIGN_CATS[cur].colour)+"</p>"+
+    '<p style="color:var(--ink-3);margin-top:6px;font-size:14px">Tested on <b style="color:var(--beam)">'+
+    famSeen+" of "+fam.length+"</b> of these. A tick means it has come up at least once.</p>";
   app.appendChild(info);
 
   const detail = h("div",{class:"panel hide"});
@@ -738,8 +756,9 @@ function signsView(cat, openId){
     detail.scrollIntoView({block:"nearest", behavior:"smooth"});
   }
   const grid = h("div",{class:"signgrid"});
-  SIGNS.filter(s=>s.cat===cur).forEach(s=>{
-    const c=h("button",{class:"sgi",type:"button"});
+  fam.forEach(s=>{
+    const b = S.sign[s.id];
+    const c=h("button",{class:"sgi"+(b&&b.n?" seen":""),type:"button"});
     c.innerHTML = signSVG(s,64,{hideLabel:true})+"<span>"+esc2(s.name)+"</span>";
     c.addEventListener("click",()=>open(s));
     grid.appendChild(c);
@@ -752,8 +771,9 @@ function signsView(cat, openId){
 /* ── recommendation engine ───────────────────────────────────────────── */
 function recommend(){
   if(missCount()>=6) return {label:"Clear "+missCount()+" from your Fix-It list", go:reviewView};
-  const sigCov = CAT_ORDER.reduce((a,c)=>a+coverage(S.signcat[c]),0)/CAT_ORDER.length;
-  if(sigCov<0.5) return {label:"Learn the signs — Sign Sprint", go:startSprint};
+  const unseen = SIGNS.length - signsSeen();
+  if(unseen > 0) return {label: signsSeen()===0 ? "Start with the signs — Sign Sprint"
+                                                : unseen+" signs you have never been shown", go:startSprint};
   const weak = TOPICS.map(t=>({t, v: accuracy(S.topic[t.id])*coverage(S.topic[t.id]), c:coverage(S.topic[t.id])}))
                      .sort((a,b)=>a.v-b.v)[0];
   if(readiness()>=78) return {label:"You are ready — take the mock G1 exam", go:startExam};
@@ -819,7 +839,8 @@ function home(){
     '<div class="statrow">'+
       '<div class="stat"><b class="num">'+lv.l+"</b><span>Level</span></div>"+
       '<div class="stat"><b class="num">'+dayStreak()+"</b><span>Day streak</span></div>"+
-      '<div class="stat"><b class="num">'+missCount()+"</b><span>To fix</span></div></div>";
+      '<div class="stat"><b class="num">'+missCount()+"</b><span>To fix</span></div>"+
+      '<div class="stat"><b class="num">'+signsSeen()+"/"+SIGNS.length+"</b><span>Signs seen</span></div></div>";
   const rec = recommend();
   const rb = h("button",{class:"btn go wide",type:"button",text:rec.label});
   rb.addEventListener("click", rec.go);
@@ -897,7 +918,8 @@ function home(){
   const foot = h("div",{class:"foot"});
   foot.innerHTML = "Built from <b>The Official MTO Driver&rsquo;s Handbook</b> (ISBN 978-1-4868-8628-9), chapters 1 and 2, "+
     "plus the traffic signs, lights and pavement markings the knowledge test also covers. "+
-    SIGNS.length+" signs &middot; "+BANK.length+" rules questions &middot; "+NUMBERS.length+" distances &middot; "+SCENARIOS.length+" right-of-way puzzles."+
+    SIGNS.length+" signs &mdash; every one in the handbook &middot; "+BANK.length+" rules questions &middot; "+
+    NUMBERS.length+" distances &middot; "+SCENARIOS.length+" right-of-way puzzles."+
     "<br><br>Study aid only — always confirm the current rules at ontario.ca. Progress is saved on this device only. "+
     '<button id="wipe" style="color:#63728A;text-decoration:underline">Reset my progress</button>';
   app.appendChild(foot);

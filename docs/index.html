@@ -83,7 +83,7 @@ p{margin:0}
 .gauge .lbl{font-family:var(--f-disp);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase}
 .gauge .note{font-size:14px;color:var(--ink-2);margin-top:8px}
 
-.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:8px;margin-top:14px}
 .stat{background:var(--road-2);border:1px solid var(--hair);border-radius:var(--r-s);padding:9px 10px;text-align:center}
 .stat b{display:block;font-family:var(--f-disp);font-size:26px;font-weight:800;line-height:1;color:var(--ink)}
 .stat span{font-size:11px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
@@ -230,6 +230,11 @@ p{margin:0}
 .signgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px}
 .sgi{padding:10px 8px;border-radius:var(--r-s);background:var(--road-1);border:1px solid var(--hair);text-align:center}
 .sgi:hover{background:var(--road-2);border-color:var(--hair-hot)}
+.sgi{position:relative}
+.sgi.seen::after{content:'';position:absolute;top:7px;right:7px;width:14px;height:14px;border-radius:50%;
+  background:var(--good);box-shadow:inset 0 0 0 2px var(--road-1)}
+.sgi.seen::before{content:'';position:absolute;top:11px;right:10px;width:7px;height:4px;z-index:1;
+  border-left:2px solid var(--road-1);border-bottom:2px solid var(--road-1);transform:rotate(-45deg)}
 .sgi svg{display:block;margin:0 auto 7px}
 .sgi span{display:block;font-size:12px;line-height:1.25;color:var(--ink-2)}
 .detail{display:grid;place-items:center;gap:12px;text-align:center;padding:8px 0 4px}
@@ -437,6 +442,14 @@ G.truckEntrance = `<path d="M8 74h84v9H8z"/><path d="M10 28h44v34H10z"/><path d=
 <circle cx="26" cy="66" r="7"/><circle cx="72" cy="66" r="7"/>`;
 G.bikeCross = `<path d="M6 40h88v8H6z" opacity=".35"/><g transform="translate(0,6) scale(1,.92)">${G.bike}</g>`;
 
+
+G.fireTruck = `<path d="M4 30h46v34H4z"/><path d="M52 40h20l14 12v12H52z"/>
+<rect x="56" y="44" width="13" height="9" rx="2" fill="var(--cut,#fff)"/>
+<g transform="rotate(-9 12 20)"><rect x="12" y="14" width="52" height="9" rx="3"/></g>
+<circle cx="22" cy="70" r="8"/><circle cx="74" cy="70" r="8"/><circle cx="70" cy="24" r="6"/>`;
+
+G.hiddenSide = `<path d="M44 6h12v88H44z"/><path d="M56 44h38v12H56z"/><rect x="66" y="16" width="12" height="22" rx="2"/>`;
+
 /* control devices ------------------------------------------------------- */
 G.octagon = `<path d="M32 8h36l24 24v36L68 92H32L8 68V32z"/>`;
 G.triangleDown = `<path d="M6 10h88L50 92z"/>`;
@@ -521,10 +534,12 @@ const GBOX = {
   dividedBegin:[23,4,54,92],
   dividedEnd:[34,4,32,92],
   exitArrow:[20,6,70,86],
+  fireTruck:[4,5.94,82,72.06],
   flagger:[24,3,70,87],
   food:[18,8,66,84],
   fuel:[14,8,74,84],
   hazardEdge:[18,2,70,94],
+  hiddenSide:[44,6,50,88],
   hill:[6,16,82,72],
   hospitalH:[22,12,56,76],
   hovDiamond:[12,6,76,88],
@@ -615,7 +630,7 @@ const SHAPE = {
   tall:     { d:'M26 4h76v120H26z',     r:8,                  bg:'white', fg:'black', gs:.62, pad:[30,10,98,118], edge:'black', edgeW:4 },
   wide:     { d:'M4 28h120v72H4z',      r:6,                  bg:'white', fg:'black', gs:.50, pad:[10,32,118,96],  edge:'black', edgeW:4 },
   circle:   { d:'',  circle:true,                             bg:'white', fg:'black', gs:.66, pad:[22,22,106,106], edge:'black', edgeW:4 },
-  pentagon: { d:'M64 6 122 48 100 120H28L6 48z',              bg:'fyg',   fg:'black', gs:.62, pad:[22,26,106,110], edge:'black', edgeW:4 },
+  pentagon: { d:'M64 5 121 50v70H7V50z',                       bg:'fyg',   fg:'black', gs:.60, pad:[14,30,114,114], edge:'black', edgeW:4 },
   triUp:    { d:'M64 8 122 116H6z',                           bg:'orange',fg:'red',   gs:.40, pad:[30,50,98,108], edge:'red', edgeW:12 },
   crossbuck:{ d:'',  crossbuck:true,                          bg:'white', fg:'red',   gs:.5,  pad:[0,0,128,128] },
   shield:   { d:'M64 4c22 0 34 8 46 8v58c0 30-28 42-46 54C46 112 18 100 18 70V12c12 0 24-8 46-8z', bg:'green', fg:'white', gs:.5, pad:[24,20,104,108] }
@@ -730,8 +745,6 @@ const SIGNS = [
  means:'Lower speed limit while the yellow lights flash or during posted hours.', tip:'School zone limits are enforced hard — fines can double.'},
 {id:'noLeftTurn', name:'No left turn', cat:'reg', shape:'square', art:{g:'turnLeft', ring:'no'},
  means:'Do not turn left at this intersection.', tip:'Red circle + slash = the thing shown is banned.'},
-{id:'noRightTurn', name:'No right turn', cat:'reg', shape:'square', art:{g:'turnRight', ring:'no'},
- means:'Do not turn right at this intersection.', tip:'Red circle + slash = banned.'},
 {id:'noUturn', name:'No U-turn', cat:'reg', shape:'square', art:{g:'uTurn', ring:'no'},
  means:'Do not turn around to go the opposite way here.', tip:'The hooked arrow doubling back = U-turn.'},
 {id:'noStraight', name:'Do not drive straight through', cat:'reg', shape:'square', art:{g:'arrUp', ring:'no'},
@@ -744,8 +757,6 @@ const SIGNS = [
  means:'Bicycles are not allowed on this road.', tip:'Slash = keep off.'},
 {id:'noPedestrians', name:'No pedestrians', cat:'reg', shape:'square', art:{g:'ped', ring:'no'},
  means:'Pedestrians are not allowed on this road.', tip:'Common on freeway entrances.'},
-{id:'noTrucks', name:'No trucks', cat:'reg', shape:'square', art:{g:'truck', ring:'no'},
- means:'Trucks are not permitted on this road.', tip:'Often on residential shortcuts.'},
 {id:'noParking', name:'No parking', cat:'reg', shape:'tall', art:{g:'parkingP', ring:'no', gs:.70, gy:-4, t:[{s:'ANY TIME',size:12}]},
  means:'Do not park here. You may stop briefly to load or unload people or goods.', tip:'No PARKING is the mildest of the three: loading is still OK.'},
 {id:'noStopping', name:'No stopping', cat:'reg', shape:'tall', art:{t:[{s:'NO',size:24,c:'red'},{s:'STOPPING',size:15,c:'red'},{s:'ANY TIME',size:11}]},
@@ -758,8 +769,6 @@ const SIGNS = [
  means:'Only vehicles displaying a valid Accessible Parking Permit may park here.', tip:'Blue and white. Big fine if you cheat.'},
 {id:'accessibleLoading', name:'Accessible loading zone', cat:'reg', shape:'tall', art:{g:'wheelchair', gs:.74, gy:-4, gfg:'blue', t:[{s:'LOADING',size:12},{s:'ZONE',size:12}]},
  means:'Curb space for permit holders to pick up and drop off passengers.', tip:'Drop-off only — not a parking spot.'},
-{id:'keepRight', name:'Keep right', cat:'reg', shape:'square', art:{g:'keepRight'},
- means:'Keep to the right of the traffic island or divider ahead.', tip:'The arrow shows the side you must pass on.'},
 {id:'slowKeepRight', name:'Slower traffic keep right', cat:'reg', shape:'tall', art:{t:[{s:'SLOWER',size:14},{s:'TRAFFIC',size:14},{s:'KEEP',size:14},{s:'RIGHT',size:14}]},
  means:'On multi-lane roads, slow traffic must stay in the right lane.', tip:'Left lanes are for passing, not cruising.'},
 {id:'doNotPass', name:'Do not pass', cat:'reg', shape:'tall', art:{t:[{s:'DO NOT',size:18},{s:'PASS',size:22}]},
@@ -792,18 +801,12 @@ const SIGNS = [
 /* ══ WARNING (yellow diamond) ════════════════════════════════════════════ */
 {id:'stopAhead', name:'Stop sign ahead', cat:'warn', shape:'diamond', art:{g:'octagon', gs:.46},
  means:'A stop sign is coming up. Start slowing now.', tip:'Yellow diamond = warning, not an order.'},
-{id:'yieldAhead', name:'Yield sign ahead', cat:'warn', shape:'diamond', art:{g:'triangleDown', gs:.46},
- means:'A yield sign is coming up.', tip:'Prepare to give way.'},
 {id:'signalAhead', name:'Traffic lights ahead', cat:'warn', shape:'diamond', art:{g:'signalAhead', gs:.44},
  means:'Traffic lights are coming — often where you cannot see them early.', tip:'Cover the brake.'},
 {id:'crossroadAhead', name:'Intersection ahead', cat:'warn', shape:'diamond', art:{g:'crossroad', gs:.50},
  means:'A crossroad is ahead. Watch for traffic entering from both sides.', tip:'The stem shows the road you are on.'},
-{id:'tIntersection', name:'T-intersection ahead', cat:'warn', shape:'diamond', art:{g:'tIntersect', gs:.50},
- means:'The road you are on ends ahead — you must turn left or right.', tip:'Dead end for straight-ahead.'},
 {id:'sideRoadAhead', name:'Side road ahead', cat:'warn', shape:'diamond', art:{g:'sideRoadRight', gs:.50},
  means:'A road joins from the side ahead.', tip:'Watch for vehicles pulling out.'},
-{id:'yIntersection', name:'Y-intersection ahead', cat:'warn', shape:'diamond', art:{g:'yIntersect', gs:.50},
- means:'The road splits ahead — choose your side.', tip:'Signal for the branch you want.'},
 {id:'roadBranch', name:'Road branching off', cat:'warn', shape:'diamond', art:{g:'roadBranch', gs:.50},
  means:'A road branches off in the direction shown.', tip:'The angled arm shows the branch.'},
 {id:'curveRight', name:'Curve to the right', cat:'warn', shape:'diamond', art:{g:'curveRight', gs:.52},
@@ -830,8 +833,6 @@ const SIGNS = [
  means:'A roundabout is ahead. Slow down and pick your lane.', tip:'Yield to traffic already in the circle — look LEFT.'},
 {id:'bumpAhead', name:'Bump ahead', cat:'warn', shape:'diamond', art:{g:'bump', gs:.50},
  means:'A bump or uneven pavement ahead.', tip:'Slow down or you will lose contact with the road.'},
-{id:'dipAhead', name:'Dip ahead', cat:'warn', shape:'diamond', art:{g:'dip', gs:.50},
- means:'A sudden dip in the road ahead.', tip:'Water collects in dips.'},
 {id:'narrowBridge', name:'Narrow bridge ahead', cat:'warn', shape:'diamond', art:{g:'narrowBridge', gs:.50},
  means:'The bridge ahead is narrower than the road.', tip:'Do not pass on it.'},
 {id:'lowClearance', name:'Underpass / low clearance ahead', cat:'warn', shape:'diamond', art:{g:'lowClearance', gs:.52},
@@ -858,8 +859,6 @@ const SIGNS = [
  means:'Cyclists use this lane. Give them at least 1 metre when passing.', tip:'1 metre is the law — less is a fine plus 2 points.'},
 {id:'deerCrossing', name:'Deer crossing', cat:'warn', shape:'diamond', art:{g:'deer', gs:.52},
  means:'Deer regularly cross here. Watch for shining eyes at night.', tip:'Where there is one deer, there are usually more.'},
-{id:'mooseArea', name:'Moose area', cat:'warn', shape:'diamond', art:{g:'moose', gs:.52},
- means:'Moose cross this road. They are tall, dark and hard to see.', tip:'Northern Ontario. Slow down at dusk.'},
 {id:'snowmobileCross', name:'Snowmobiles cross', cat:'warn', shape:'diamond', art:{g:'snowmobile', gs:.50},
  means:'A snowmobile trail crosses the road ahead.', tip:'Winter hazard, often at night.'},
 {id:'truckEntrance', name:'Truck entrance', cat:'warn', shape:'diamond', art:{g:'truckEntrance', gs:.50},
@@ -901,7 +900,7 @@ const SIGNS = [
 
 /* ══ INFORMATION / DIRECTION ═════════════════════════════════════════════ */
 {id:'exitSign', name:'Freeway exit', cat:'info', shape:'wide', art:{bg:'green', fg:'white', edge:'white', t:[{s:'EXIT 25',size:22}]},
- means:'Names the numbered exit ahead.', tip:'GREEN = where you are going.'},
+ means:'Names the numbered exit ahead.', tip:'The number is the distance in km from the start of that freeway — exit 204 is 204 km along.'},
 {id:'destinationDistance', name:'Distance to destinations', cat:'info', shape:'square', art:{bg:'green', fg:'white', edge:'white', t:[{s:'BARRIE 42',size:13},{s:'SUDBURY 347',size:11}]},
  means:'How far it is to the places listed, in kilometres.', tip:'Green rectangle with white letters.'},
 {id:'advanceExit', name:'Advance exit / lane guidance', cat:'info', shape:'wide', art:{bg:'green', fg:'white', edge:'white', g:'exitArrow', gfg:'white', gs:.62, gy:-4, t:[{s:'HWY 401 EAST',size:11}]},
@@ -912,12 +911,6 @@ const SIGNS = [
  means:'A hospital is nearby, in the direction shown.', tip:'BLUE = services for the traveller.'},
 {id:'airportSign', name:'Airport', cat:'info', shape:'square', art:{bg:'blue', fg:'white', edge:'white', g:'plane', gs:.55},
  means:'Route to an airport.', tip:'Blue service sign.'},
-{id:'fuelSign', name:'Fuel available', cat:'info', shape:'square', art:{bg:'blue', fg:'white', edge:'white', g:'fuel', gs:.55},
- means:'Fuel is available at this exit.', tip:'Blue = services.'},
-{id:'foodSign', name:'Food available', cat:'info', shape:'square', art:{bg:'blue', fg:'white', edge:'white', g:'food', gs:.55},
- means:'Restaurants at this exit.', tip:'Blue = services.'},
-{id:'campSign', name:'Campground', cat:'info', shape:'square', art:{bg:'brown', fg:'white', edge:'white', g:'camp', gs:.55},
- means:'A park or campground is nearby.', tip:'BROWN = parks, recreation and culture.'},
 {id:'accessibleFacility', name:'Wheelchair accessible facility', cat:'info', shape:'square', art:{bg:'blue', fg:'white', edge:'white', g:'wheelchair', gs:.55},
  means:'The facility ahead is wheelchair accessible.', tip:'Blue and white.'},
 {id:'edrSign', name:'Emergency detour route', cat:'info', shape:'square', art:{bg:'green', fg:'white', edge:'white', t:[{s:'EDR',size:24},{s:'DETOUR',size:11}]},
@@ -931,11 +924,49 @@ const SIGNS = [
 {id:'checkerboard', name:'Checkerboard — road changes direction', cat:'other', shape:'square', art:{bg:'yellow', g:'checker', gs:.78, edge:null},
  means:'The road turns sharply or ends here. Follow the pattern.', tip:'Black-and-yellow checker = the road does not continue straight.'},
 {id:'chevronMarker', name:'Chevron — sharp change of direction', cat:'other', shape:'wide', art:{bg:'yellow', fg:'black', g:'chevRight', gs:.46, edge:null, t:[]},
- means:'Guides you around a sharp curve. Several are placed along the bend.', tip:'Follow the arrows through the curve.'},
-{id:'schoolPatrol', name:'School crossing guard stop sign', cat:'other', shape:'octagon', art:{t:[{s:'STOP',size:26}], gy:-2},
- means:'Held by a crossing guard. Stop until every person AND the guard are off the road.', tip:'Ignoring it: big fine plus 3 demerit points.'},
-{id:'objectMarker', name:'Object marker', cat:'other', shape:'tall', art:{bg:'black', fg:'yellow', edge:null, g:'stripes', gfg:'yellow', gs:.78, t:[]},
- means:'Marks an obstruction beside or in the roadway.', tip:'Stripes point down toward the side you should pass on.'}
+ means:'Guides you around a sharp curve. Several are placed along the bend.', tip:'Follow the arrows through the curve.'}
+,
+
+/* ── added to match chapter 3 of the handbook ─────────────────────────── */
+{id:'schoolBusBoth', name:'Both directions must stop for school bus', cat:'reg', shape:'tall', art:{g:'schoolBus', gs:.78, gy:-6, t:[{s:'BOTH',size:13},{s:'DIRECTIONS',size:10}]},
+ means:'On a multi-lane road with no median, traffic BOTH ways must stop for the bus.', tip:'Posted where drivers might assume the median rule applies. It does not.'},
+{id:'schoolBusZone', name:'School bus loading zone', cat:'reg', shape:'tall', art:{t:[{s:'SCHOOL BUS',size:11},{s:'LOADING',size:12},{s:'ZONE',size:13}]},
+ means:'Buses load and unload here WITHOUT using red lights or the stop arm.', tip:'No flashing lights does not mean no children. Slow down.'},
+{id:'roadForksRight', name:'Road forks to the right', cat:'reg', shape:'square', art:{g:'roadBranch', gs:.66},
+ means:'The road ahead splits — keep right to stay on the through route.', tip:'A white regulatory sign, not a yellow warning.'},
+{id:'keepRightPass', name:'Keep right except to pass', cat:'reg', shape:'tall', art:{t:[{s:'KEEP',size:15},{s:'RIGHT',size:15},{s:'EXCEPT TO',size:10},{s:'PASS',size:14}]},
+ means:'On climbing and passing lanes, stay right unless you are actively passing.', tip:'The extra lane exists so faster traffic can get by you.'},
+{id:'hiddenSideRoad', name:'Hidden side road ahead', cat:'warn', shape:'diamond', art:{g:'hiddenSide', gs:.52},
+ means:'Drivers on the side road ahead cannot see you coming. Expect them to pull out.', tip:'Cover the brake — assume they have not seen you.'},
+{id:'fireTruckEntrance', name:'Fire truck entrance', cat:'warn', shape:'diamond', art:{g:'fireTruck', gs:.52},
+ means:'Fire trucks enter the road here. Be ready to yield.', tip:'They leave in a hurry and they do not stop for you.'},
+{id:'rampSpeed', name:'Maximum safe speed on ramp', cat:'warn', shape:'wide', art:{bg:'yellow', fg:'black', t:[{s:'RAMP 50',size:22}]},
+ means:'The highest safe speed for the ramp ahead in good conditions.', tip:'Check your speedometer — after freeway speed, 50 feels like crawling.'},
+{id:'constructionKm', name:'Construction one kilometre ahead', cat:'temp', shape:'diamond', art:{bg:'orange', t:[{s:'CONSTRUCTION',size:8},{s:'1 km AHEAD',size:10}]},
+ means:'Road work starts one kilometre ahead. Start planning your lane now.', tip:'Orange means temporary, every time.'},
+{id:'constructionZone', name:'Construction zone begins', cat:'temp', shape:'diamond', art:{bg:'orange', t:[{s:'CONSTRUCTION',size:8},{s:'ZONE BEGINS',size:10}]},
+ means:'You are entering a construction zone. Expect a lower speed limit.', tip:'Fines double here when workers are present.'},
+{id:'detourMarker', name:'Detour marker', cat:'temp', shape:'square', art:{bg:'orange', fg:'black', g:'arrRight', gs:.52, gy:-8, t:[{s:'DETOUR',size:14}]},
+ means:'Follow these markers until they return you to the regular route.', tip:'Follow the markers, not your map app — it does not know about the closure.'},
+{id:'finesDoubled', name:'Construction zone fines doubled', cat:'temp', shape:'tall', art:{bg:'orange', fg:'black', t:[{s:'FINES',size:14},{s:'DOUBLED',size:12},{s:'WHEN WORKERS',size:8},{s:'PRESENT',size:10}]},
+ means:'Speeding fines double in this construction zone when workers are present.', tip:'The people beside your car have nothing between them and you.'},
+{id:'viaSign', name:'VIA route sign', cat:'info', shape:'wide', art:{bg:'green', fg:'white', edge:'white', t:[{s:'OTTAWA',size:15},{s:'VIA HWY 417',size:11}]},
+ means:'Names the road you must follow to reach that destination.', tip:'VIA = the route to take, not the destination itself.'},
+{id:'roundaboutDest', name:'Roundabout destination sign', cat:'info', shape:'square', art:{bg:'green', fg:'white', edge:'white', g:'roundaboutSign', gfg:'white', gs:.58},
+ means:'Shows the roundabout exits and where each one goes.', tip:'Read it on approach and pick your lane before the yield line.'},
+{id:'variableMessage', name:'Variable message sign', cat:'info', shape:'wide', art:{bg:'black', fg:'yellow', edge:null, t:[{s:'CRASH AHEAD',size:13},{s:'2 LANES CLOSED',size:11}]},
+ means:'Changes with conditions to warn of delays, closures and collisions ahead.', tip:'Live information — believe it over your route plan.'},
+{id:'railStation', name:'Passenger railway station', cat:'info', shape:'square', art:{bg:'blue', fg:'white', edge:'white', g:'train', gs:.58},
+ means:'Route to a passenger railway station.', tip:'Blue means services for the traveller.'},
+{id:'oversizeLoad', name:'Oversize load (D sign)', cat:'info', shape:'square', art:{t:[{s:'D',size:56}]},
+ means:'Marks a vehicle carrying an oversize load. Give it extra room.', tip:'It needs more of the road than its lane provides.'},
+{id:'lcvPlacard', name:'Long commercial vehicle (LCV)', cat:'other', shape:'wide', art:{bg:'yellow', fg:'black', t:[{s:'LONG',size:15},{s:'VEHICLE',size:13}]},
+ means:'A double trailer up to 40 metres long.', tip:'Passing one takes far longer than you think. Do not start unless the road is clear.'},
+{id:'emergencyResponse', name:'Emergency response number', cat:'other', shape:'square', art:{bg:'green', fg:'white', edge:'white', t:[{s:'HWY 401',size:15},{s:'EAST',size:11},{s:'2045',size:17}]},
+ means:'The number along the bottom tells emergency crews exactly where you are.', tip:'Read it out when you call 911 from a highway.'},
+{id:'bilingualSign', name:'Bilingual sign', cat:'other', shape:'wide', art:{bg:'green', fg:'white', edge:'white', t:[{s:'EXIT 25 SORTIE',size:14}]},
+ means:'In designated bilingual areas, the message appears in English and French.', tip:'Read whichever language you know best — they say the same thing.'}
+
 ];
 
 const SIGN_CATS = {
@@ -1577,6 +1608,37 @@ BANK.push(
 );
 
 ;
+/* ── Chapter 2 diagram sweep ──────────────────────────────────────────────
+   Every diagram in chapter 2 exists to make one point. These close the points
+   that were illustrated but not yet asked about.                           */
+BANK.push(
+{t:"lights", q:"A large white X painted on the road ahead of you warns that:", a:["A lane is closed","A railway crossing is ahead","No passing","A school zone begins"], c:1,
+ w:"Diagram 2-25: the X pavement marking backs up the crossbuck. Slow, look both ways, listen."},
+{t:"intersections", q:"Older 'traffic circles' differ from modern roundabouts because they:", a:["Are smaller and slower","Are larger, allow higher speeds and force traffic to merge and weave","Have traffic lights","Flow clockwise"], c:1,
+ w:"Modern roundabouts use splitter islands to slow entry. Both still run on yield-to-the-left."},
+{t:"intersections", q:"The principle that controls entry to a roundabout is:", a:["Yield to the right","Yield to the left","First come, first served","Largest vehicle first"], c:1,
+ w:"Vehicles already circulating have the right-of-way, and they arrive from your left."},
+{t:"night", q:"A wet road at night is harder to see on because:", a:["Headlights reflect off the water and create glare","Wet asphalt is darker","Your wipers block the view","Streetlights switch off"], c:0,
+ w:"Diagram 2-59: glare off wet pavement washes out lane lines. Slow down and increase your following distance."},
+{t:"share", q:"A cyclist may legally ride away from the right edge of the road when:", a:["Never — they must always hug the curb","They are moving at the normal speed of traffic, or getting into position to turn left","Only in a bike lane","Only after dark"], c:1,
+ w:"So do not expect a cyclist to be at the curb, and do not squeeze past one who is not."},
+{t:"share", q:"A bike lane runs beside a row of parked cars. The danger is:", a:["Cyclists ride too slowly","A parked driver opening a door into the bike lane","The lane is too wide","Nothing — it is separated"], c:1,
+ w:"Diagram 2-10: the door zone. Check your mirror and blind spot before opening, and expect cyclists to swing out around doors."},
+{t:"ready", q:"Your vehicle has lane-keeping and adaptive cruise control. You must:", a:["Let the system drive","Stay alert and be ready to take over control at any moment","Only use them on freeways","Disable them in the city"], c:1,
+ w:"Diagram 2-1: know how your vehicle's technology behaves before you rely on it. You are still the driver."},
+{t:"positions", q:"On a two-lane road with a passing or climbing lane, you should:", a:["Stay left","Keep right except when actually passing","Use either lane","Speed up in the extra lane"], c:1,
+ w:"Diagram 2-48: the extra lane exists so faster traffic can get past you, not so you can race."},
+{t:"turns", q:"Turning left from a ONE-WAY road onto a TWO-WAY road, you should end up:", a:["In any lane","In the lane just to the right of the centre line","In the far right lane","On the shoulder"], c:1,
+ w:"Diagram 2-33: start in the far left lane of the one-way, finish in the leftmost lane going your way."},
+{t:"stopping", q:"There is no stop line, no crosswalk and no sidewalk. Where do you stop?", a:["At the edge of the intersection, where you can see traffic","In the middle of the intersection","Ten metres back","Wherever you like"], c:0,
+ w:"Diagram 2-24: last of the four fallbacks — stop line, crosswalk, sidewalk, then the intersection edge."},
+{t:"share", q:"A truck driver's mirrors leave blind spots. The worst place to sit is:", a:["Well behind the trailer","Directly alongside the trailer or right behind it","Ahead of the cab","In the next lane over, level with the cab"], c:1,
+ w:"Diagrams 2-15 and 2-17: if you cannot see the driver's face in their mirror, they cannot see you."},
+{t:"intersections", q:"You are turning left and an oncoming vehicle is also turning left. You should:", a:["Pass in front of each other","Pass behind each other unless markings say otherwise","Stop and wait","Both turn at once on the right"], c:1,
+ w:"Diagram 2-20: turning behind each other keeps both drivers' views of oncoming traffic clear."}
+);
+
+;
 /* ── Right-of-way scenarios ──────────────────────────────────────────────
    Each is drawn as a plan view. `cars` are placed on approach legs:
    n/s/e/w = which leg they sit on, dir = where they are going.          */
@@ -1960,6 +2022,18 @@ const BLANK = {v:1, xp:0, plays:0, days:[], best:{}, topic:{}, signcat:{}, sign:
 let S;
 try { S = Object.assign({}, BLANK, JSON.parse(localStorage.getItem(KEY) || "{}")); }
 catch(e){ S = Object.assign({}, BLANK); }
+/* Signs get removed when the handbook is re-checked. Drop any stored progress
+   that points at one, so a retired sign can't wedge the Fix-It list. */
+(function pruneRetired(){
+  const live = {}; SIGNS.forEach(s => live[s.id] = 1);
+  let n = 0;
+  Object.keys(S.miss || {}).forEach(k => {
+    if (k[0] === "s" && !live[k.slice(2)]) { delete S.miss[k]; n++; }
+  });
+  Object.keys(S.sign || {}).forEach(id => { if (!live[id]) { delete S.sign[id]; n++; } });
+  if (n) try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){}
+})();
+
 let saveT = null;
 function save(){ clearTimeout(saveT); saveT = setTimeout(()=>{
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }, 120); }
@@ -2016,6 +2090,8 @@ function clearMiss(key, ok){
   save();
 }
 const missCount = () => Object.keys(S.miss).length;
+const signsSeen = () => SIGNS.filter(s => S.sign[s.id] && S.sign[s.id].n > 0).length;
+const signsRight = () => SIGNS.filter(s => S.sign[s.id] && S.sign[s.id].r > 0).length;
 
 /* ── badges ──────────────────────────────────────────────────────────── */
 const BADGES = [
@@ -2668,9 +2744,13 @@ function signsView(cat, openId){
     tabs.appendChild(b);
   });
   app.appendChild(tabs);
+  const fam = SIGNS.filter(s=>s.cat===cur);
+  const famSeen = fam.filter(s=>S.sign[s.id] && S.sign[s.id].n>0).length;
   const info = h("div",{class:"panel"});
   info.innerHTML = "<h2 style=\"font-size:20px\">"+esc2(SIGN_CATS[cur].label)+"</h2>"+
-    '<p style="color:var(--ink-2);margin-top:4px">'+esc2(SIGN_CATS[cur].blurb)+" &middot; "+esc2(SIGN_CATS[cur].colour)+"</p>";
+    '<p style="color:var(--ink-2);margin-top:4px">'+esc2(SIGN_CATS[cur].blurb)+" &middot; "+esc2(SIGN_CATS[cur].colour)+"</p>"+
+    '<p style="color:var(--ink-3);margin-top:6px;font-size:14px">Tested on <b style="color:var(--beam)">'+
+    famSeen+" of "+fam.length+"</b> of these. A tick means it has come up at least once.</p>";
   app.appendChild(info);
 
   const detail = h("div",{class:"panel hide"});
@@ -2687,8 +2767,9 @@ function signsView(cat, openId){
     detail.scrollIntoView({block:"nearest", behavior:"smooth"});
   }
   const grid = h("div",{class:"signgrid"});
-  SIGNS.filter(s=>s.cat===cur).forEach(s=>{
-    const c=h("button",{class:"sgi",type:"button"});
+  fam.forEach(s=>{
+    const b = S.sign[s.id];
+    const c=h("button",{class:"sgi"+(b&&b.n?" seen":""),type:"button"});
     c.innerHTML = signSVG(s,64,{hideLabel:true})+"<span>"+esc2(s.name)+"</span>";
     c.addEventListener("click",()=>open(s));
     grid.appendChild(c);
@@ -2701,8 +2782,9 @@ function signsView(cat, openId){
 /* ── recommendation engine ───────────────────────────────────────────── */
 function recommend(){
   if(missCount()>=6) return {label:"Clear "+missCount()+" from your Fix-It list", go:reviewView};
-  const sigCov = CAT_ORDER.reduce((a,c)=>a+coverage(S.signcat[c]),0)/CAT_ORDER.length;
-  if(sigCov<0.5) return {label:"Learn the signs — Sign Sprint", go:startSprint};
+  const unseen = SIGNS.length - signsSeen();
+  if(unseen > 0) return {label: signsSeen()===0 ? "Start with the signs — Sign Sprint"
+                                                : unseen+" signs you have never been shown", go:startSprint};
   const weak = TOPICS.map(t=>({t, v: accuracy(S.topic[t.id])*coverage(S.topic[t.id]), c:coverage(S.topic[t.id])}))
                      .sort((a,b)=>a.v-b.v)[0];
   if(readiness()>=78) return {label:"You are ready — take the mock G1 exam", go:startExam};
@@ -2768,7 +2850,8 @@ function home(){
     '<div class="statrow">'+
       '<div class="stat"><b class="num">'+lv.l+"</b><span>Level</span></div>"+
       '<div class="stat"><b class="num">'+dayStreak()+"</b><span>Day streak</span></div>"+
-      '<div class="stat"><b class="num">'+missCount()+"</b><span>To fix</span></div></div>";
+      '<div class="stat"><b class="num">'+missCount()+"</b><span>To fix</span></div>"+
+      '<div class="stat"><b class="num">'+signsSeen()+"/"+SIGNS.length+"</b><span>Signs seen</span></div></div>";
   const rec = recommend();
   const rb = h("button",{class:"btn go wide",type:"button",text:rec.label});
   rb.addEventListener("click", rec.go);
@@ -2846,7 +2929,8 @@ function home(){
   const foot = h("div",{class:"foot"});
   foot.innerHTML = "Built from <b>The Official MTO Driver&rsquo;s Handbook</b> (ISBN 978-1-4868-8628-9), chapters 1 and 2, "+
     "plus the traffic signs, lights and pavement markings the knowledge test also covers. "+
-    SIGNS.length+" signs &middot; "+BANK.length+" rules questions &middot; "+NUMBERS.length+" distances &middot; "+SCENARIOS.length+" right-of-way puzzles."+
+    SIGNS.length+" signs &mdash; every one in the handbook &middot; "+BANK.length+" rules questions &middot; "+
+    NUMBERS.length+" distances &middot; "+SCENARIOS.length+" right-of-way puzzles."+
     "<br><br>Study aid only — always confirm the current rules at ontario.ca. Progress is saved on this device only. "+
     '<button id="wipe" style="color:#63728A;text-decoration:underline">Reset my progress</button>';
   app.appendChild(foot);

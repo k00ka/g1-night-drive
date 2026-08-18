@@ -73,7 +73,7 @@ p{margin:0}
 .gauge .lbl{font-family:var(--f-disp);font-size:13px;letter-spacing:.18em;color:var(--ink-3);text-transform:uppercase}
 .gauge .note{font-size:14px;color:var(--ink-2);margin-top:8px}
 
-.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:8px;margin-top:14px}
 .stat{background:var(--road-2);border:1px solid var(--hair);border-radius:var(--r-s);padding:9px 10px;text-align:center}
 .stat b{display:block;font-family:var(--f-disp);font-size:26px;font-weight:800;line-height:1;color:var(--ink)}
 .stat span{font-size:11px;letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase}
@@ -220,6 +220,11 @@ p{margin:0}
 .signgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px}
 .sgi{padding:10px 8px;border-radius:var(--r-s);background:var(--road-1);border:1px solid var(--hair);text-align:center}
 .sgi:hover{background:var(--road-2);border-color:var(--hair-hot)}
+.sgi{position:relative}
+.sgi.seen::after{content:'';position:absolute;top:7px;right:7px;width:14px;height:14px;border-radius:50%;
+  background:var(--good);box-shadow:inset 0 0 0 2px var(--road-1)}
+.sgi.seen::before{content:'';position:absolute;top:11px;right:10px;width:7px;height:4px;z-index:1;
+  border-left:2px solid var(--road-1);border-bottom:2px solid var(--road-1);transform:rotate(-45deg)}
 .sgi svg{display:block;margin:0 auto 7px}
 .sgi span{display:block;font-size:12px;line-height:1.25;color:var(--ink-2)}
 .detail{display:grid;place-items:center;gap:12px;text-align:center;padding:8px 0 4px}

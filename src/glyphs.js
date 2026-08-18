@@ -175,6 +175,14 @@ G.truckEntrance = `<path d="M8 74h84v9H8z"/><path d="M10 28h44v34H10z"/><path d=
 <circle cx="26" cy="66" r="7"/><circle cx="72" cy="66" r="7"/>`;
 G.bikeCross = `<path d="M6 40h88v8H6z" opacity=".35"/><g transform="translate(0,6) scale(1,.92)">${G.bike}</g>`;
 
+
+G.fireTruck = `<path d="M4 30h46v34H4z"/><path d="M52 40h20l14 12v12H52z"/>
+<rect x="56" y="44" width="13" height="9" rx="2" fill="var(--cut,#fff)"/>
+<g transform="rotate(-9 12 20)"><rect x="12" y="14" width="52" height="9" rx="3"/></g>
+<circle cx="22" cy="70" r="8"/><circle cx="74" cy="70" r="8"/><circle cx="70" cy="24" r="6"/>`;
+
+G.hiddenSide = `<path d="M44 6h12v88H44z"/><path d="M56 44h38v12H56z"/><rect x="66" y="16" width="12" height="22" rx="2"/>`;
+
 /* control devices ------------------------------------------------------- */
 G.octagon = `<path d="M32 8h36l24 24v36L68 92H32L8 68V32z"/>`;
 G.triangleDown = `<path d="M6 10h88L50 92z"/>`;

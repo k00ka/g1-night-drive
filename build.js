@@ -1,7 +1,7 @@
 const fs = require('fs'), P = __dirname + '/src/';
 const read = f => fs.readFileSync(P + f, 'utf8');
 const css = read('fonts.css') + '\n' + read('style.css');
-const js  = ['glyphs.js','gbox.js','signs.js','bank.js','bank2.js','bank3.js','bank4.js','extras.js','cards.js','app.js']
+const js  = ['glyphs.js','gbox.js','signs.js','bank.js','bank2.js','bank3.js','bank4.js','bank5.js','extras.js','cards.js','app.js']
               .map(read).join('\n;\n');
 const TITLE = '<title>G1 Night Drive</title>';
 const HEAD  = TITLE + '\n<style>' + css + '</style>';

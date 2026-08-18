@@ -14,8 +14,8 @@ external assets. Fonts are embedded as base64 woff2. Progress saves to
 
 | Piece | Count |
 |---|---|
-| Road signs (hand-drawn SVG) | 108 |
-| Rules-of-the-road questions | 280 |
+| Road signs (hand-drawn SVG) | 114 — every sign in the handbook |
+| Rules-of-the-road questions | 292 |
 | Distance / number facts | 38 |
 | Right-of-way scenarios | 16 |
 | Shape & colour decoder items | 14 |
@@ -54,10 +54,10 @@ requests at all** — fonts are embedded — so it works offline.
 ## Source layout
 
 ```
-src/glyphs.js   89 sign pictograms, drawn in a 100×100 box
+src/glyphs.js   91 sign pictograms, drawn in a 100×100 box
 src/gbox.js     GENERATED — each pictogram's measured ink bounds
 src/signs.js    sign renderer (shape + colour + symbol) and the 108-sign catalogue
-src/bank*.js    the rules question bank
+src/bank*.js    the rules question bank (bank5 closes the chapter 2 diagram gaps)
 src/extras.js   right-of-way scenarios and the distance facts
 src/cards.js    Pit Stop study decks
 src/app.js      engine: rounds, scoring, mastery, review boxes, views
@@ -91,6 +91,13 @@ for reviewing the artwork at size:
 ```sh
 node tools/sheet.js /tmp/sheet.html && open /tmp/sheet.html
 ```
+
+## Scope
+
+The sign catalogue is reconciled against chapter 3 of the handbook, and every
+chapter 2 diagram has a question behind it. See
+[HANDBOOK-COVERAGE.md](HANDBOOK-COVERAGE.md) for what was removed, what was
+added, and why.
 
 ## Notes
 
