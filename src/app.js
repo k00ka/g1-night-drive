@@ -136,14 +136,14 @@ function signQuestion(sign, style){
   if(mode==="means"){
     const wrong = shuffle(pool).slice(0,3);
     const opts = shuffle([sign].concat(wrong));
-    return { stage:'<div class="signwrap">'+signSVG(sign,168)+"</div>",
+    return { stage:'<div class="signwrap">'+signArt(sign,190)+"</div>",
       prompt:"What does this sign mean?",
       opts: opts.map(s=>esc2(s.means)), c: opts.indexOf(sign),
       why: sign.name + " — " + sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
   }
   const wrong = shuffle(pool).slice(0,3);
   const opts = shuffle([sign].concat(wrong));
-  return { stage:'<div class="signwrap">'+signSVG(sign,168)+"</div>",
+  return { stage:'<div class="signwrap">'+signArt(sign,190)+"</div>",
     prompt:"Which sign is this?",
     opts: opts.map(s=>esc2(s.name)), c: opts.indexOf(sign),
     why: sign.means+" "+sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
@@ -156,7 +156,7 @@ function signPickQuestion(sign){
   const opts = shuffle([sign].concat(shuffle(pool).slice(0,3)));
   return { stage:'<p class="prompt"><span class="k">Find the sign that means</span><br>'+esc2(sign.name)+"</p>",
     prompt:"", optHtml:true,
-    opts: opts.map(s=>signSVG(s,84,{hideLabel:true})), c: opts.indexOf(sign),
+    opts: opts.map(s=>signArt(s,96,{hideLabel:true})), c: opts.indexOf(sign),
     why: sign.means+" "+sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
 }
 
@@ -385,7 +385,7 @@ function missRow(ref, why, extra){
   const k = ref ? ref[0] : "";
   let thumb="", title="", answer="";
   if(k==="s"){ const s=SIGNS.find(y=>y.id===ref.slice(2));
-    if(s){ thumb=signSVG(s,46,{hideLabel:true}); title=s.name; answer=s.means; } }
+    if(s){ thumb=signArt(s,52,{hideLabel:true}); title=s.name; answer=s.means; } }
   else if(k==="q"){ const b=BANK[+ref.slice(2)]; if(b){ title=b.q; answer=b.a[b.c]; } }
   else if(k==="n"){ const n=NUMBERS[+ref.slice(2)]; if(n){ title=n.q; answer=(n.u==="$"?"$"+n.v.toLocaleString():n.v+" "+n.u); } }
   else if(k==="r"){ const s=SCENARIOS.find(y=>y.id===ref.slice(2)); if(s){ title=s.q; answer=s.a[s.c]; } }
@@ -827,7 +827,8 @@ function signsView(cat, openId){
   info.innerHTML = "<h2 style=\"font-size:20px\">"+esc2(SIGN_CATS[cur].label)+"</h2>"+
     '<p style="color:var(--ink-2);margin-top:4px">'+esc2(SIGN_CATS[cur].blurb)+" &middot; "+esc2(SIGN_CATS[cur].colour)+"</p>"+
     '<p style="color:var(--ink-3);margin-top:6px;font-size:14px">Tested on <b style="color:var(--beam)">'+
-    famSeen+" of "+fam.length+"</b> of these. A tick means it has come up at least once.</p>";
+    famSeen+" of "+fam.length+"</b> of these. A tick means it has come up at least once.</p>"+
+    '<p style="color:var(--ink-3);margin-top:6px;font-size:12px">Sign images &copy; King&rsquo;s Printer for Ontario, from the Official MTO Driver&rsquo;s Handbook.</p>';
   app.appendChild(info);
 
   const detail = h("div",{class:"panel hide"});
@@ -835,7 +836,7 @@ function signsView(cat, openId){
   function open(s){
     const b = S.sign[s.id];
     detail.className = "panel";
-    detail.innerHTML = '<div class="detail">'+signSVG(s,150)+
+    detail.innerHTML = '<div class="detail">'+signArt(s,190)+
       "<h3 style=\"font-size:22px\">"+esc2(s.name)+"</h3>"+
       '<p style="color:var(--ink)">'+esc2(s.means)+"</p>"+
       '<p style="color:var(--ink-2);font-size:14px">'+esc2(s.tip)+"</p>"+
@@ -847,7 +848,7 @@ function signsView(cat, openId){
   fam.forEach(s=>{
     const b = S.sign[s.id];
     const c=h("button",{class:"sgi"+(b&&b.n?" seen":""),type:"button"});
-    c.innerHTML = signSVG(s,64,{hideLabel:true})+"<span>"+esc2(s.name)+"</span>";
+    c.innerHTML = signArt(s,84,{hideLabel:true})+"<span>"+esc2(s.name)+"</span>";
     c.addEventListener("click",()=>open(s));
     grid.appendChild(c);
   });
@@ -872,7 +873,7 @@ function recommend(){
 /* ── HOME ───────────────────────────────────────────────────────────── */
 const GAMES = [
  {id:"sprint", sign:"yield",   name:"Sign Sprint",    d:"90 seconds. Name the sign. Build a streak.", go:startSprint},
- {id:"decoder",sign:"schoolAhead", name:"Shape & Colour", d:"Read a sign you have never seen before.", go:startDecoder},
+ {id:"decoder",sign:"schoolZone", name:"Shape & Colour", d:"Read a sign you have never seen before.", go:startDecoder},
  {id:"rapid",  sign:"maxSpeed", name:"Rapid Fire",    d:"Rules of the road, 12 at a time.", go:()=>topicPicker()},
  {id:"row",    sign:"crossroadAhead", name:"Right of Way", d:"Who goes first? Plan-view puzzles.", go:startRow},
  {id:"dial",   sign:"maxSafeSpeed", name:"Distance Dial", d:"Every number the G1 loves to ask.", go:startDial},
@@ -942,32 +943,32 @@ function home(){
   GAMES.forEach(gm=>{
     const s = SIGNS.find(x=>x.id===gm.sign);
     const c = h("button",{class:"gcard",type:"button"});
-    c.innerHTML = '<span class="ic">'+signSVG(s,38,{hideLabel:true})+"</span><b>"+esc2(gm.name)+"</b><small>"+esc2(gm.d)+"</small>"+
+    c.innerHTML = '<span class="ic">'+signArt(s,44,{hideLabel:true})+"</span><b>"+esc2(gm.name)+"</b><small>"+esc2(gm.d)+"</small>"+
       (S.best[gm.id] ? '<span class="best">Best '+S.best[gm.id]+"</span>" : "");
     c.addEventListener("click", gm.go);
     grid.appendChild(c);
   });
   const ex = h("button",{class:"gcard wide exam",type:"button"});
   const passes = S.exams.filter(e=>e.pass).length;
-  ex.innerHTML = '<span class="ic">'+signSVG(SIGNS.find(s=>s.id==="stop"),38,{hideLabel:true})+"</span>"+
+  ex.innerHTML = '<span class="ic">'+signArt(SIGNS.find(s=>s.id==="stop"),44,{hideLabel:true})+"</span>"+
     "<b>Mock G1 Exam</b><small>The real shape: 20 signs + 20 rules. You need 16 of 20 in each half.</small>"+
     '<span class="best">'+(S.exams.length ? passes+" passed of "+S.exams.length+(S.exams.length===1?" attempt":" attempts") : "Not attempted yet")+"</span>";
   ex.addEventListener("click", startExam);
   grid.appendChild(ex);
   const rv = h("button",{class:"gcard wide review",type:"button"});
-  rv.innerHTML = '<span class="ic">'+signSVG(SIGNS.find(s=>s.id==="constructionAhead"),38,{hideLabel:true})+"</span>"+
+  rv.innerHTML = '<span class="ic">'+signArt(SIGNS.find(s=>s.id==="roadWorkAhead"),44,{hideLabel:true})+"</span>"+
     "<b>Fix-It Garage "+(missCount()?'<span class="pill hot">'+missCount()+"</span>":"")+"</b>"+
     "<small>Everything you got wrong, waiting to be cleared. Three correct answers retires an item.</small>";
   rv.addEventListener("click", reviewView);
   grid.appendChild(rv);
 
   const st = h("button",{class:"gcard",type:"button"});
-  st.innerHTML = '<span class="ic">'+signSVG(SIGNS.find(s=>s.id==="destinationDistance"),38,{hideLabel:true})+"</span>"+
+  st.innerHTML = '<span class="ic">'+signArt(SIGNS.find(s=>s.id==="destinationDistance"),44,{hideLabel:true})+"</span>"+
     "<b>Pit Stop</b><small>The whole two chapters, in short lines.</small>";
   st.addEventListener("click",()=>studyView());
   grid.appendChild(st);
   const sh = h("button",{class:"gcard",type:"button"});
-  sh.innerHTML = '<span class="ic">'+signSVG(SIGNS.find(s=>s.id==="crossbuck"),38,{hideLabel:true})+"</span>"+
+  sh.innerHTML = '<span class="ic">'+signArt(SIGNS.find(s=>s.id==="railwayCrossbuck"),44,{hideLabel:true})+"</span>"+
     "<b>Sign Shop</b><small>All "+SIGNS.length+" signs, sorted by family.</small>";
   sh.addEventListener("click",()=>signsView());
   grid.appendChild(sh);
@@ -1004,8 +1005,11 @@ function home(){
   sec3.appendChild(bl); app.appendChild(sec3);
 
   const foot = h("div",{class:"foot"});
-  foot.innerHTML = "Built from <b>The Official MTO Driver&rsquo;s Handbook</b> (ISBN 978-1-4868-8628-9), chapters 1 and 2, "+
-    "plus the traffic signs, lights and pavement markings the knowledge test also covers. "+
+  foot.innerHTML = "Built from <b>The Official MTO Driver&rsquo;s Handbook</b> (ISBN 978-1-4868-8628-9): chapters 1 and 2, "+
+    "and the traffic signs, lights and pavement markings of chapter 3. "+
+    "Sign artwork and descriptions are &copy; King&rsquo;s Printer for Ontario, reproduced unmodified "+
+    "for non-commercial use with credit, per the reproduction terms published on ontario.ca. "+
+    "This is an unofficial study aid with no connection to the Ministry of Transportation or DriveTest. "+
     SIGNS.length+" signs &mdash; every one in the handbook &middot; "+BANK.length+" rules questions &middot; "+
     NUMBERS.length+" distances &middot; "+SCENARIOS.length+" right-of-way puzzles."+
     "<br><br>Study aid only — always confirm the current rules at ontario.ca. Progress is saved on this device only. "+

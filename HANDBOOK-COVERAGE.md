@@ -4,6 +4,12 @@ What this app tests, and how it was checked against the source.
 
 ## Signs — chapter 3
 
+**The signs are now the handbook's own artwork.** Students spotted that several
+hand-drawn signs were wrong or did not exist, so the whole set was replaced with
+the official images and the book's own descriptions — 112 signs, categorised by
+the handbook's own section headings. What follows is the earlier reconciliation,
+kept as the record of how the catalogue was scoped.
+
 The catalogue is the handbook's sign set. It was audited line by line against
 the "Signs" section of the official handbook (fetched from the ontario.ca print
 edition), and reconciled in both directions.

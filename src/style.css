@@ -194,7 +194,7 @@ p{margin:0}
 .row .pc{flex:0 0 42px;text-align:right;font-family:var(--f-disp);font-weight:800;font-size:18px;color:var(--ink-2)}
 
 .row.miss{align-items:flex-start;gap:12px}
-.row.miss .thumb{flex:0 0 46px;line-height:0;padding-top:2px}
+.row.miss .thumb{flex:0 0 52px;line-height:0;padding-top:2px}
 .row.miss .nm b{display:block;font-weight:600;font-size:15px;color:var(--ink);margin-bottom:2px;letter-spacing:0;text-transform:none}
 .row.miss .nm em{display:block;font-style:normal;font-size:14px;color:var(--good);margin-bottom:3px}
 .row.miss .nm small{display:block;font-size:13px;color:var(--ink-3);letter-spacing:0;text-transform:none;line-height:1.4}
@@ -211,6 +211,15 @@ p{margin:0}
 .sheet ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
 .sheet li{position:relative;padding-left:18px;font-size:15px;color:var(--ink-2);line-height:1.4}
 .sheet li::before{content:'';position:absolute;left:0;top:.62em;width:8px;height:2px;background:var(--beam);border-radius:2px}
+
+/* official sign artwork sits on a white plate, the way a sign sits on a board */
+.plate{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:9px;
+  padding:6px;box-sizing:border-box;line-height:0;max-width:100%}
+.plate img{width:100%;height:auto;display:block;border-radius:2px}
+.stage .signwrap .plate{padding:12px 16px;border-radius:12px}
+.sgi .plate{margin:0 auto 7px}
+.gcard .ic .plate{padding:4px;border-radius:6px}
+.row.miss .thumb .plate{padding:3px;border-radius:5px}
 
 /* ── sign browser ────────────────────────────────────────────────────── */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
