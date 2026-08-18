@@ -1,0 +1,11 @@
+# Build outputs (docs/index.html is committed — GitHub Pages serves it)
+dist/
+
+# Extracted text of the Official MTO Driver's Handbook.
+# Kept locally as the working source for the question bank, but not published:
+# the handbook is Crown copyright (King's Printer for Ontario). Everything in
+# this repo is our own restatement of those rules, not a copy of their text.
+source-handbook-ch1-2.txt
+
+.DS_Store
+node_modules/
