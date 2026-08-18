@@ -138,10 +138,35 @@ function signArt(sign, size, opts){
   opts = opts || {};
   if (!sign.file)  /* plated too, so the three drawn signs sit like the rest */
     return '<span class="plate" style="width:' + size + 'px">' + signSVG(sign, size - 12, opts) + '</span>';
+
   const src = (typeof SIGNIMG !== 'undefined' && SIGNIMG[sign.file]) || '';
   const alt = opts.hideLabel ? '' : esc(sign.name);
-  return '<span class="plate" style="width:' + size + 'px">' +
-         '<img src="' + src + '" alt="' + alt + '" loading="lazy" draggable="false"></span>';
+  const b   = (typeof SIGNBOX !== 'undefined' && SIGNBOX[sign.file]) || null;
+  if (!b) return '<span class="plate" style="width:' + size + 'px">' +
+                 '<img src="' + src + '" alt="' + alt + '" loading="lazy"></span>';
+
+  /* The published images carry wide white margins — on average the sign fills
+     under half the frame. Rather than crop the artwork (which must stay
+     unmodified) the plate acts as a window onto it, showing the sign plus a
+     little breathing room. Nothing outside the window is sign: it is the same
+     white as the plate. */
+  const PAD = 0.07;
+  const x = b[0] - b[2]*PAD, y = b[1] - b[3]*PAD;
+  const bw = b[2] * (1 + 2*PAD), bh = b[3] * (1 + 2*PAD);
+  const ar = (bw * b[4]) / (bh * b[5]);
+  const iw = 100 / bw, ih = 100 / bh;
+  /* Some entries are a pair of signs stacked, so cap the height as well as the
+     width, and keep magnification modest — the published files are only ~170px
+     wide, so zooming hard just enlarges the JPEG's own softness. */
+  const native = bw * b[4];
+  let w = Math.min(size, native * (opts.sharp === false ? 2.6 : 1.9));
+  const maxH = opts.maxH || 0;
+  if (maxH && w / ar > maxH) w = maxH * ar;
+  size = Math.max(40, Math.round(w));
+  return '<span class="plate zoom" style="width:' + size + 'px;aspect-ratio:' + ar.toFixed(4) + '">' +
+    '<img src="' + src + '" alt="' + alt + '" loading="lazy" draggable="false" style="' +
+    'width:' + iw.toFixed(3) + '%;height:' + ih.toFixed(3) + '%;' +
+    'left:' + (-x * iw).toFixed(3) + '%;top:' + (-y * ih).toFixed(3) + '%"></span>';
 }
 
 const SIGN_CATS = {

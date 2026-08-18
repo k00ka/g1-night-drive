@@ -87,7 +87,17 @@ meaning is the handbook's wording too.
 
 The build emits them two ways: inlined as data URIs for the claude.ai artifact,
 which cannot load anything external, and as separate cached files under
-`docs/signs/` for the hosted site, which keeps the HTML around 390 KB.
+`docs/signs/` for the hosted site, which keeps the HTML around 400 KB.
+
+The published files carry wide white margins — the sign itself fills only about
+**48%** of the frame on average, which made every sign look small. Since the
+artwork must stay unmodified, `tools/measure-signs.js` measures where the ink
+actually sits (headless Chrome, canvas pixel scan) and writes `src/signbox.js`;
+the plate then acts as a window onto the sign rather than showing the whole
+frame. Nothing is cropped or re-encoded. Magnification is capped, because the
+sources are only ~170px wide and zooming hard just enlarges their own softness.
+
+**Re-run `node tools/measure-signs.js` after adding or replacing any sign image.**
 
 ## How the plan-view diagrams get aligned
 

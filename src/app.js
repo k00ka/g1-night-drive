@@ -136,14 +136,14 @@ function signQuestion(sign, style){
   if(mode==="means"){
     const wrong = shuffle(pool).slice(0,3);
     const opts = shuffle([sign].concat(wrong));
-    return { stage:'<div class="signwrap">'+signArt(sign,190)+"</div>",
+    return { stage:'<div class="signwrap">'+signArt(sign,230,{sharp:false,maxH:300})+"</div>",
       prompt:"What does this sign mean?",
       opts: opts.map(s=>esc2(s.means)), c: opts.indexOf(sign),
       why: sign.name + " — " + sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
   }
   const wrong = shuffle(pool).slice(0,3);
   const opts = shuffle([sign].concat(wrong));
-  return { stage:'<div class="signwrap">'+signArt(sign,190)+"</div>",
+  return { stage:'<div class="signwrap">'+signArt(sign,230,{sharp:false,maxH:300})+"</div>",
     prompt:"Which sign is this?",
     opts: opts.map(s=>esc2(s.name)), c: opts.indexOf(sign),
     why: sign.means+" "+sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
@@ -156,7 +156,7 @@ function signPickQuestion(sign){
   const opts = shuffle([sign].concat(shuffle(pool).slice(0,3)));
   return { stage:'<p class="prompt"><span class="k">Find the sign that means</span><br>'+esc2(sign.name)+"</p>",
     prompt:"", optHtml:true,
-    opts: opts.map(s=>signArt(s,96,{hideLabel:true})), c: opts.indexOf(sign),
+    opts: opts.map(s=>signArt(s,110,{hideLabel:true,maxH:120})), c: opts.indexOf(sign),
     why: sign.means+" "+sign.tip, ref:"s:"+sign.id, area:{store:"signcat",id:sign.cat} };
 }
 
@@ -836,7 +836,7 @@ function signsView(cat, openId){
   function open(s){
     const b = S.sign[s.id];
     detail.className = "panel";
-    detail.innerHTML = '<div class="detail">'+signArt(s,190)+
+    detail.innerHTML = '<div class="detail">'+signArt(s,230,{sharp:false,maxH:300})+
       "<h3 style=\"font-size:22px\">"+esc2(s.name)+"</h3>"+
       '<p style="color:var(--ink)">'+esc2(s.means)+"</p>"+
       '<p style="color:var(--ink-2);font-size:14px">'+esc2(s.tip)+"</p>"+

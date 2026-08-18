@@ -18,7 +18,7 @@ signFiles.forEach(f => {
   pathMap[f]   = 'signs/' + f;
 });
 
-const CODE = ['glyphs.js','gbox.js','booksigns.js'];
+const CODE = ['glyphs.js','gbox.js','booksigns.js','signbox.js'];
 const REST = ['signs.js','bank.js','bank2.js','bank3.js','bank4.js','bank5.js','bank6.js',
               'extras.js','cards.js','app.js'];
 const bundle = map =>
