@@ -202,72 +202,160 @@ function decoderQuestion(i){
 
 /* ── plan-view intersections ─────────────────────────────────────────── */
 function planSVG(sc){
-  const W=300, C=150, RW=86, half=RW/2;
-  const road = '#1D2531', edge='#2C3849';
-  let s = '<svg class="plan" viewBox="0 0 300 300" width="300" height="300" role="img" aria-label="Plan view of the intersection">';
+  const C=150, RW=86, half=RW/2;
+  const road='#1D2531', edge='#2C3849', dash='#C8A227', paint='#E9EFF7';
+  /* other traffic is silver: red, amber and green all mean something on a
+     traffic light, so a red car makes "wait for the red to clear" ambiguous */
+  const OTHER = '#C3CEDD';
+  const kind = sc.kind;
+
+  const car = (x,y,rot,col,label,k) => {
+    const s2 = k||1;
+    let o = '<g transform="translate('+x+','+y+') rotate('+rot+') scale('+s2+')">'+
+      '<rect x="-13" y="-22" width="26" height="44" rx="7" fill="'+col+'"/>'+
+      '<rect x="-9" y="-14" width="18" height="12" rx="3" fill="rgba(0,0,0,.32)"/>'+
+      '<rect x="-9" y="6" width="18" height="10" rx="3" fill="rgba(0,0,0,.22)"/>'+
+      (label?'<circle cx="0" cy="-30" r="4" fill="#FFD24A"/>':'')+'</g>';
+    if(label) o += '<text x="'+x+'" y="'+(y+38)+'" fill="'+col+'" font-family="Barlow Condensed" '+
+      'font-size="15" font-weight="800" text-anchor="middle">YOU</text>';
+    return o;
+  };
+  /* a proper signal head: dark casing, visible body, unlit lamps nearly black */
+  const signalHead = (x,y,on,flash,k) => {
+    const s2 = k||1;
+    const lamp = (cy,col,lit,doFlash) =>
+      (lit ? '<circle cx="0" cy="'+cy+'" r="16" fill="'+col+'" opacity=".22"'+(doFlash?' class="sigflash"':'')+'/>' : '')+
+      '<circle cx="0" cy="'+cy+'" r="9" fill="'+(lit?col:'#141C28')+'"'+(lit?'':' stroke="#26313F" stroke-width="1.5"')+'/>';
+    return '<g transform="translate('+x+','+y+') scale('+s2+')">'+
+      '<rect x="-4" y="-54" width="8" height="16" fill="#46566B"/>'+
+      '<rect x="-18" y="-40" width="36" height="80" rx="9" fill="#0C121B" stroke="#63748A" stroke-width="2.5"/>'+
+      lamp(-22,'#FF5A5F',on[0],false)+lamp(0,'#FFCE00',on[1],false)+lamp(22,'#2FD07C',on[2],flash)+'</g>';
+  };
+  const cap = (x,y,txt,col,size) => '<text x="'+x+'" y="'+y+'" fill="'+col+'" font-family="Barlow Condensed" '+
+    'font-size="'+(size||14)+'" font-weight="800" text-anchor="middle" letter-spacing=".05em">'+txt+'</text>';
+
+  let s = '<svg class="plan" viewBox="0 0 300 300" width="300" height="300" role="img" aria-label="Plan view of the situation">';
   s += '<rect width="300" height="300" fill="#0B1119"/>';
-  if(sc.kind==="driveway"){
+
+  /* ── ground ──────────────────────────────────────────────────────────── */
+  if(kind==="driveway"){
     s += '<rect x="0" y="'+(C-half)+'" width="300" height="'+RW+'" fill="'+road+'"/>';
-    s += '<rect x="0" y="'+(C+half)+'" width="300" height="10" fill="#243040"/>';   /* sidewalk */
+    s += '<rect x="0" y="'+(C+half)+'" width="300" height="10" fill="#243040"/>';
     s += '<rect x="'+(C-16)+'" y="'+(C+half+10)+'" width="32" height="'+(150-half-10)+'" fill="'+road+'"/>';
-    s += '<path d="M0 '+C+' H300" stroke="#C8A227" stroke-width="2" stroke-dasharray="12 10"/>';
+    s += '<path d="M0 '+C+' H300" stroke="'+dash+'" stroke-width="2" stroke-dasharray="12 10"/>';
+  } else if(kind==="schoolbus" || kind==="emergency"){
+    const h2 = 52;
+    s += '<rect x="'+(C-h2)+'" y="0" width="'+(h2*2)+'" height="300" fill="'+road+'"/>';
+    s += '<rect x="'+(C-h2-11)+'" y="0" width="11" height="300" fill="#243040"/>';
+    s += '<rect x="'+(C+h2)+'" y="0" width="11" height="300" fill="#243040"/>';
+    if(sc.median){
+      /* a raised median is the whole point of this question, so draw it */
+      s += '<rect x="'+(C-9)+'" y="0" width="18" height="300" fill="#1E3324" stroke="#46566B" stroke-width="2"/>';
+      s += cap(C, 292, "MEDIAN", "#7C8AA0", 11);
+    } else {
+      s += '<path d="M'+C+' 0 V300" stroke="'+dash+'" stroke-width="2" stroke-dasharray="12 10"/>';
+    }
+  } else if(kind==="pxo"){
+    /* A crossover sits across ONE road. Drawing a full intersection made the
+       whole junction read as the crosswalk. */
+    s += '<rect x="'+(C-half)+'" y="0" width="'+RW+'" height="300" fill="'+road+'"/>';
+    s += '<rect x="'+(C-half-11)+'" y="0" width="11" height="300" fill="#243040"/>';
+    s += '<rect x="'+(C+half)+'" y="0" width="11" height="300" fill="#243040"/>';
+    s += '<path d="M'+C+' 0 V104 M'+C+' 178 V300" stroke="'+dash+'" stroke-width="2" stroke-dasharray="12 10"/>';
   } else {
     s += '<rect x="0" y="'+(C-half)+'" width="300" height="'+RW+'" fill="'+road+'"/>';
     s += '<rect x="'+(C-half)+'" y="0" width="'+RW+'" height="300" fill="'+road+'"/>';
-    s += '<path d="M0 '+C+' H'+(C-half)+' M'+(C+half)+' '+C+' H300" stroke="#C8A227" stroke-width="2" stroke-dasharray="12 10"/>';
-    s += '<path d="M'+C+' 0 V'+(C-half)+' M'+C+' '+(C+half)+' V300" stroke="#C8A227" stroke-width="2" stroke-dasharray="12 10"/>';
+    const gap = kind==="roundabout" ? 74 : half;
+    s += '<path d="M0 '+C+' H'+(C-gap)+' M'+(C+gap)+' '+C+' H300" stroke="'+dash+'" stroke-width="2" stroke-dasharray="12 10"/>';
+    s += '<path d="M'+C+' 0 V'+(C-gap)+' M'+C+' '+(C+gap)+' V300" stroke="'+dash+'" stroke-width="2" stroke-dasharray="12 10"/>';
   }
-  if(sc.kind==="roundabout"){
-    s += '<circle cx="'+C+'" cy="'+C+'" r="60" fill="'+road+'"/>';
-    s += '<circle cx="'+C+'" cy="'+C+'" r="30" fill="#14351F" stroke="'+edge+'" stroke-width="3"/>';
-    s += '<path d="M'+(C+46)+' '+C+' A46 46 0 1 0 '+C+' '+(C-46)+'" fill="none" stroke="#8B98AC" stroke-width="3" stroke-dasharray="7 8"/>';
-    s += '<path d="M'+C+' '+(C-56)+' l10 16 -20 0z" fill="#8B98AC"/>';
+
+  /* ── roundabout: circulating roadway, island, flow arrows, yield line ── */
+  if(kind==="roundabout"){
+    s += '<circle cx="'+C+'" cy="'+C+'" r="66" fill="'+road+'"/>';
+    s += '<circle cx="'+C+'" cy="'+C+'" r="34" fill="#16351F" stroke="'+edge+'" stroke-width="3"/>';
+    s += '<circle cx="'+C+'" cy="'+C+'" r="50" fill="none" stroke="#68788E" stroke-width="2" stroke-dasharray="6 8"/>';
+    /* traffic runs counter-clockwise: heading west at the top, south on the left */
+    s += '<path d="M'+(C-2)+' '+(C-59)+' L'+(C-20)+' '+(C-50)+' L'+(C-2)+' '+(C-41)+'z" fill="#8B98AC"/>';
+    s += '<path d="M'+(C-59)+' '+(C+2)+' L'+(C-50)+' '+(C+20)+' L'+(C-41)+' '+(C+2)+'z" fill="#8B98AC"/>';
+    /* the car you must yield to: circulating on your left, coming round to your entry */
+    s += car(C-50, C-4, 180, OTHER, false, .82);
+    /* yield line across your entry lane */
+    for(let i=0;i<4;i++){ const x=C+9+i*13;
+      s += '<path d="M'+(x-5)+' 219 L'+(x+5)+' 219 L'+x+' 229z" fill="'+paint+'" opacity=".9"/>'; }
+    s += cap(C+52, 246, "YIELD", "#93A2B8", 13);
   }
-  /* control devices */
-  const stopSign = (x,y)=>'<g transform="translate('+x+','+y+') scale(.14) translate(-64,-64)">'+
-    signSVG({shape:"octagon",art:{t:[{s:"STOP",size:34}]},name:"stop"},128,{hideLabel:true}).replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"")+'</g>';
-  if(sc.kind==="allway"){
-    [[C-half-14,C+half+14],[C+half+14,C-half-14],[C-half-14,C-half-14],[C+half+14,C+half+14]].forEach(p=>{ s+=stopSign(p[0],p[1]); });
+
+  /* ── control devices ─────────────────────────────────────────────────── */
+  const octagon = signSVG({shape:"octagon",art:{t:[{s:"STOP",size:34}]},name:"stop"},128,{hideLabel:true})
+    .replace(/^<svg[^>]*>/,"").replace(/<\/svg>$/,"");
+  /* a sign faces the traffic it controls, so each one is turned to look back
+     down its own approach — rot 0 faces the bottom of the picture */
+  const stopSign = (x,y,rot)=>'<g transform="translate('+x+','+y+') rotate('+rot+') scale(.185) translate(-64,-64)">'+
+    octagon+'</g>';
+  if(kind==="allway"){
+    const gap = half+15;
+    s += stopSign(C+gap, C+gap,   0);   /* right of the northbound approach, facing it */
+    s += stopSign(C-gap, C-gap, 180);   /* right of the southbound approach */
+    s += stopSign(C-gap, C+gap,  90);   /* right of the eastbound approach */
+    s += stopSign(C+gap, C-gap, 270);   /* right of the westbound approach */
   }
-  if(sc.kind==="light"){
-    const cols = {green:["#2FD07C","#22303f","#22303f"], red:["#22303f","#22303f","#FF5A5F"],
-                  advgreen:["#2FD07C","#22303f","#22303f"], dark:["#22303f","#22303f","#22303f"]};
-    const c = cols[sc.light]||cols.green;
-    s += '<g transform="translate('+(C+half+22)+','+(C-half-30)+')"><rect x="-13" y="-34" width="26" height="68" rx="7" fill="#161E2B" stroke="'+edge+'"/>'+
-         '<circle cx="0" cy="-20" r="8" fill="'+c[2]+'"/><circle cx="0" cy="0" r="8" fill="'+c[1]+'"/>'+
-         '<circle cx="0" cy="20" r="8" fill="'+c[0]+'"/></g>';
-    if(sc.light==="advgreen") s += '<text x="'+(C+half+22)+'" y="'+(C-half+52)+'" fill="#2FD07C" font-family="Barlow Condensed" font-size="16" font-weight="800" text-anchor="middle">ADV</text>';
-    if(sc.light==="dark") s += '<text x="'+(C+half+22)+'" y="'+(C-half+52)+'" fill="#93A2B8" font-family="Barlow Condensed" font-size="15" font-weight="800" text-anchor="middle">OFF</text>';
+  if(kind==="light"){
+    const on = ({red:[1,0,0], green:[0,0,1], advgreen:[0,0,1], dark:[0,0,0]})[sc.light] || [0,0,1];
+    /* sits in the corner block, clear of the roadway */
+    s += signalHead(246, 50, on, sc.light==="advgreen");
+    if(sc.light==="advgreen"){
+      s += cap(246, 104, "FLASHING", "#2FD07C", 15);
+      s += cap(246, 120, "GREEN", "#2FD07C", 15);
+      s += signalHead(54, 236, [1,0,0], false, .82);
+      s += cap(54, 282, "ONCOMING", "#93A2B8", 12);
+      s += cap(54, 296, "STOPPED", "#93A2B8", 12);
+    }
+    if(sc.light==="dark") s += cap(246, 104, "NO POWER", "#93A2B8", 14);
   }
-  if(sc.kind==="pxo"){
-    s += '<rect x="'+(C-half)+'" y="'+(C-46)+'" width="'+RW+'" height="4" fill="#E9EFF7"/>';
-    s += '<rect x="'+(C-half)+'" y="'+(C+42)+'" width="'+RW+'" height="4" fill="#E9EFF7"/>';
-    s += '<text x="'+C+'" y="'+(C+8)+'" fill="#E9EFF7" font-family="Barlow Condensed" font-size="34" font-weight="800" text-anchor="middle">X</text>';
+  if(kind==="pxo"){
+    /* two pairs of parallel lines mark the crossing; the big X is painted in the
+       approach lane ahead of it, never on top of the crossing itself */
+    [110,116,166,172].forEach(y=>{ s += '<rect x="'+(C-half)+'" y="'+y+'" width="'+RW+'" height="4" fill="'+paint+'"/>'; });
+    s += '<text x="'+(C+21)+'" y="216" fill="'+paint+'" opacity=".8" font-family="Barlow Condensed" font-size="34" font-weight="800" text-anchor="middle">X</text>';
+    s += '<text x="'+(C-21)+'" y="86" fill="'+paint+'" opacity=".45" font-family="Barlow Condensed" font-size="30" font-weight="800" text-anchor="middle">X</text>';
   }
   if(sc.ped){
-    const px = sc.kind==="driveway" ? C-46 : C, py = sc.kind==="driveway" ? C+half+5 : C-4;
+    let px=C, py=C-4;
+    if(kind==="driveway"){ px=C-46; py=C+half+5; }
+    else if(kind==="pxo"){ px=C-half+17; py=141; }
     s += '<g transform="translate('+px+','+py+') scale(.34) translate(-50,-50)" fill="#FFD24A" style="--cut:#0B1119">'+G.ped+'</g>';
   }
-  if(sc.kind==="schoolbus"){
-    s += '<g transform="translate('+(C+22)+',96) rotate(-90) scale(.52) translate(-50,-50)" fill="#FFCE00" style="--cut:#0B1119">'+G.schoolBus+'</g>';
-    s += '<circle cx="'+(C+40)+'" cy="70" r="6" fill="#FF5A5F"/><circle cx="'+(C+4)+'" cy="70" r="6" fill="#FF5A5F"/>';
+  if(kind==="schoolbus"){
+    const bx = C+26, by = sc.median ? 150 : 118;
+    s += '<g transform="translate('+bx+','+by+') rotate(-90) scale(.55) translate(-50,-50)" fill="#FFCE00" style="--cut:#0B1119">'+G.schoolBus+'</g>';
+    s += '<circle cx="'+(bx-16)+'" cy="'+(by-26)+'" r="6" fill="#FF5A5F"/><circle cx="'+(bx+16)+'" cy="'+(by-26)+'" r="6" fill="#FF5A5F"/>';
+    s += '<circle cx="'+(bx-16)+'" cy="'+(by+26)+'" r="6" fill="#FF5A5F"/><circle cx="'+(bx+16)+'" cy="'+(by+26)+'" r="6" fill="#FF5A5F"/>';
+    /* stop arm swung out into the lane beside it */
+    s += '<rect x="'+(bx-46)+'" y="'+(by-9)+'" width="22" height="18" rx="3" fill="#C8102E" stroke="#fff" stroke-width="2"/>';
   }
-  if(sc.kind==="emergency"){
-    s += '<g transform="translate('+(C+18)+',272) rotate(-90) scale(.44) translate(-50,-50)" fill="#E9EFF7" style="--cut:#0B1119">'+G.carPlain+'</g>';
-    s += '<circle cx="'+(C+30)+'" cy="290" r="6" fill="#FF5A5F"/><circle cx="'+(C+6)+'" cy="290" r="6" fill="#4EA8FF"/>';
+  if(kind==="emergency"){
+    /* drawn as a plan-view vehicle like every other car — the side-view car
+       glyph turned on its side just read as a white wedge */
+    const ex = C+26, ey = 258;
+    s += car(ex, ey, 0, "#EDF2F8", false);
+    s += '<rect x="'+(ex-15)+'" y="'+(ey-7)+'" width="30" height="9" rx="4" fill="#0B1119"/>';
+    s += '<circle cx="'+(ex-7)+'" cy="'+(ey-2.5)+'" r="4.5" fill="#FF5A5F"/>';
+    s += '<circle cx="'+(ex+7)+'" cy="'+(ey-2.5)+'" r="4.5" fill="#4EA8FF"/>';
+    s += cap(ex, 296, "AMBULANCE", "#93A2B8", 12);
   }
   /* cars */
-  const spots = { s:[C+18,244,0], n:[C-18,56,180], w:[56,C+18,90], e:[244,C-18,270] };
-  (sc.cars||[]).forEach(car=>{
-    const p = spots[car.leg]; if(!p) return;
-    const col = car.you ? "#4EA8FF" : "#FF5A5F";
-    s += '<g transform="translate('+p[0]+','+p[1]+') rotate('+p[2]+')">'+
-         '<rect x="-13" y="-22" width="26" height="44" rx="7" fill="'+col+'"/>'+
-         '<rect x="-9" y="-14" width="18" height="12" rx="3" fill="rgba(0,0,0,.32)"/>'+
-         '<rect x="-9" y="6" width="18" height="10" rx="3" fill="rgba(0,0,0,.22)"/>'+
-         (car.you?'<circle cx="0" cy="-30" r="4" fill="#FFD24A"/>':'')+'</g>';
-    if(car.you) s += '<text x="'+p[0]+'" y="'+(p[1]+ (car.leg==="s"?38:(car.leg==="n"?-30:5)))+
-      '" fill="#4EA8FF" font-family="Barlow Condensed" font-size="15" font-weight="800" text-anchor="middle">YOU</text>';
+  /* the queue is the whole point of the blocked-intersection question */
+  if(sc.queue){
+    [150, 98, 46].forEach(y => { s += car(C+18, y, 0, OTHER, false); });
+  }
+  const oneRoad = (kind==="schoolbus" || kind==="emergency");
+  const spots = oneRoad
+    ? { s:[C+26,204,0], n:[C-30,68,180] }
+    : { s:[C+18,244,0], n:[C-18,56,180], w:[56,C+18,90], e:[244,C-18,270] };
+  (sc.cars||[]).forEach(c=>{
+    const p = spots[c.leg]; if(!p) return;
+    s += car(p[0], p[1], p[2], c.you ? "#4EA8FF" : OTHER, !!c.you);
   });
   s += '</svg>';
   return s;

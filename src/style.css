@@ -235,6 +235,11 @@ p{margin:0}
 /* ── plan-view intersection ──────────────────────────────────────────── */
 .plan{display:block;margin:0 auto;max-width:100%;height:auto}
 
+/* a flashing green is the whole point of the advanced-green diagram, so the
+   halo pulses; the lamp underneath stays lit if motion is reduced */
+@keyframes sigflash{0%,48%{opacity:.34}49%,100%{opacity:.05}}
+.plan .sigflash{animation:sigflash 1.1s steps(1,end) infinite}
+
 /* ── misc ────────────────────────────────────────────────────────────── */
 .empty{text-align:center;padding:34px 18px;color:var(--ink-2)}
 .empty b{display:block;font-family:var(--f-disp);font-size:26px;color:var(--ink);margin-bottom:6px;text-transform:uppercase}
